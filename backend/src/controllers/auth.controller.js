@@ -1,4 +1,4 @@
-import { registerUser, loginUser } from '../services/auth.service.js';
+import { registerUser, loginUser, getUserById } from '../services/auth.service.js';
 
 /**
  * Controller to handle user registration.
@@ -40,6 +40,25 @@ export const login = async (req, res, next) => {
       message: 'Login successful.',
       user: result.user,
       token: result.token,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Controller to get current authenticated user profile.
+ *
+ * @route GET /api/auth/me
+ * @access Private
+ */
+export const getMe = async (req, res, next) => {
+  try {
+    const user = await getUserById(req.user.id);
+
+    return res.status(200).json({
+      success: true,
+      user,
     });
   } catch (error) {
     next(error);
