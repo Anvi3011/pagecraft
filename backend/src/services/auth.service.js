@@ -39,6 +39,12 @@ export const registerUser = async ({ name, email, password }) => {
     throw error;
   }
 
+  if (password.trim().length < 6) {
+    const error = new Error('Password must be at least 6 characters.');
+    error.statusCode = 400;
+    throw error;
+  }
+
   const normalizedEmail = email.trim().toLowerCase();
 
   // Check if user with given email already exists

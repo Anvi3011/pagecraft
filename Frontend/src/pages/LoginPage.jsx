@@ -22,7 +22,7 @@ export default function LoginPage() {
       await login(form);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Login failed');
+      setError(err.message || 'Login failed. Is the database running?');
     } finally {
       setSubmitting(false);
     }
@@ -30,16 +30,35 @@ export default function LoginPage() {
 
   return (
     <div className="page-container">
-      <main className="main-content" style={{ maxWidth: 420 }}>
-        <section className="diagnostic-section">
-          <h2>Log in to Pagecraft</h2>
-          <p className="diagnostic-desc">Welcome back — enter your details to continue.</p>
+      {/* Background Animated Orbs */}
+      <div className="background-orbs">
+        <div className="orb orb-1"></div>
+        <div className="orb orb-2"></div>
+      </div>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <header className="navbar" style={{ borderBottom: 'none', background: 'transparent' }}>
+        <div className="logo-container">
+          <Link to="/" className="nav-logo-link">
+            <span className="logo-text">Pagecraft</span>
+          </Link>
+        </div>
+        <div>
+          <Link to="/" className="refresh-btn" style={{ border: 'none', background: 'transparent', boxShadow: 'none' }}>
+            &larr; Back to Home
+          </Link>
+        </div>
+      </header>
+      <main className="main-content" style={{ maxWidth: 420, marginTop: '2rem' }}>
+        <section className="diagnostic-section" style={{ textAlign: 'center' }}>
+          <div style={{ width: '56px', height: '56px', background: 'rgba(168, 85, 247, 0.15)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto', boxShadow: '0 0 20px rgba(168, 85, 247, 0.2)' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </div>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Welcome back</h2>
+          <p className="diagnostic-desc">Enter your details to continue.</p>
+
+          <form onSubmit={handleSubmit} className="auth-form">
             <div>
-              <label htmlFor="email" style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', color: '#94a3b8' }}>
-                Email
-              </label>
+              <label htmlFor="email" className="auth-label">Email</label>
               <input
                 id="email"
                 name="email"
@@ -47,14 +66,12 @@ export default function LoginPage() {
                 required
                 value={form.email}
                 onChange={handleChange}
-                style={inputStyle}
+                className="auth-input"
               />
             </div>
 
             <div>
-              <label htmlFor="password" style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', color: '#94a3b8' }}>
-                Password
-              </label>
+              <label htmlFor="password" className="auth-label">Password</label>
               <input
                 id="password"
                 name="password"
@@ -62,36 +79,26 @@ export default function LoginPage() {
                 required
                 value={form.password}
                 onChange={handleChange}
-                style={inputStyle}
+                className="auth-input"
               />
             </div>
 
             {error && (
-              <div className="error-box">
-                <p>{error}</p>
+              <div className="error-box" style={{ color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>{error}</p>
               </div>
             )}
 
-            <button type="submit" disabled={submitting} className="refresh-btn" style={{ justifyContent: 'center' }}>
+            <button type="submit" disabled={submitting} className="refresh-btn auth-submit">
               {submitting ? 'Logging in...' : 'Log in'}
             </button>
           </form>
 
-          <p style={{ marginTop: '1.25rem', fontSize: '0.85rem', color: '#94a3b8' }}>
-            Don&apos;t have an account? <Link to="/register" style={{ color: '#818cf8' }}>Register</Link>
+          <p className="auth-footer-text">
+            Don&apos;t have an account? <Link to="/register" className="auth-link">Register</Link>
           </p>
         </section>
       </main>
     </div>
   );
 }
-
-const inputStyle = {
-  width: '100%',
-  padding: '0.6rem 0.75rem',
-  borderRadius: '8px',
-  border: '1px solid #334155',
-  background: '#0f172a',
-  color: '#f8fafc',
-  fontSize: '0.9rem',
-};

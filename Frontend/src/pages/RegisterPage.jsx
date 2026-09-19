@@ -6,7 +6,7 @@ export default function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -17,12 +17,17 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    
+    if (form.password !== form.confirmPassword) {
+      return setError('Passwords do not match');
+    }
+
     setSubmitting(true);
     try {
-      await register(form);
+      await register({ name: form.name, email: form.email, password: form.password });
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Registration failed');
+      setError(err.message || 'Registration failed. Is the database running?');
     } finally {
       setSubmitting(false);
     }
@@ -30,16 +35,35 @@ export default function RegisterPage() {
 
   return (
     <div className="page-container">
-      <main className="main-content" style={{ maxWidth: 420 }}>
-        <section className="diagnostic-section">
-          <h2>Create your Pagecraft account</h2>
+      {/* Background Animated Orbs */}
+      <div className="background-orbs">
+        <div className="orb orb-1"></div>
+        <div className="orb orb-2"></div>
+      </div>
+
+      <header className="navbar" style={{ borderBottom: 'none', background: 'transparent' }}>
+        <div className="logo-container">
+          <Link to="/" className="nav-logo-link">
+            <span className="logo-text">Pagecraft</span>
+          </Link>
+        </div>
+        <div>
+          <Link to="/" className="refresh-btn" style={{ border: 'none', background: 'transparent', boxShadow: 'none' }}>
+            &larr; Back to Home
+          </Link>
+        </div>
+      </header>
+      <main className="main-content" style={{ maxWidth: 420, marginTop: '2rem' }}>
+        <section className="diagnostic-section" style={{ textAlign: 'center' }}>
+          <div style={{ width: '56px', height: '56px', background: 'rgba(236, 72, 153, 0.15)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto', boxShadow: '0 0 20px rgba(236, 72, 153, 0.2)' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ec4899" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+          </div>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Create your account</h2>
           <p className="diagnostic-desc">Build your portfolio in minutes.</p>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <form onSubmit={handleSubmit} className="auth-form">
             <div>
-              <label htmlFor="name" style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', color: '#94a3b8' }}>
-                Name
-              </label>
+              <label htmlFor="name" className="auth-label">Name</label>
               <input
                 id="name"
                 name="name"
@@ -47,14 +71,12 @@ export default function RegisterPage() {
                 required
                 value={form.name}
                 onChange={handleChange}
-                style={inputStyle}
+                className="auth-input"
               />
             </div>
 
             <div>
-              <label htmlFor="email" style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', color: '#94a3b8' }}>
-                Email
-              </label>
+              <label htmlFor="email" className="auth-label">Email</label>
               <input
                 id="email"
                 name="email"
@@ -62,14 +84,12 @@ export default function RegisterPage() {
                 required
                 value={form.email}
                 onChange={handleChange}
-                style={inputStyle}
+                className="auth-input"
               />
             </div>
 
             <div>
-              <label htmlFor="password" style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem', color: '#94a3b8' }}>
-                Password
-              </label>
+              <label htmlFor="password" className="auth-label">Password</label>
               <input
                 id="password"
                 name="password"
@@ -78,37 +98,40 @@ export default function RegisterPage() {
                 minLength={6}
                 value={form.password}
                 onChange={handleChange}
-                style={inputStyle}
+                className="auth-input"
               />
-              <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.3rem' }}>At least 6 characters.</p>
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="auth-label">Confirm Password</label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                minLength={6}
+                value={form.confirmPassword}
+                onChange={handleChange}
+                className="auth-input"
+              />
             </div>
 
             {error && (
-              <div className="error-box">
-                <p>{error}</p>
+              <div className="error-box" style={{ color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>{error}</p>
               </div>
             )}
 
-            <button type="submit" disabled={submitting} className="refresh-btn" style={{ justifyContent: 'center' }}>
+            <button type="submit" disabled={submitting} className="refresh-btn auth-submit">
               {submitting ? 'Creating account...' : 'Register'}
             </button>
           </form>
 
-          <p style={{ marginTop: '1.25rem', fontSize: '0.85rem', color: '#94a3b8' }}>
-            Already have an account? <Link to="/login" style={{ color: '#818cf8' }}>Log in</Link>
+          <p className="auth-footer-text">
+            Already have an account? <Link to="/login" className="auth-link">Log in</Link>
           </p>
         </section>
       </main>
     </div>
   );
 }
-
-const inputStyle = {
-  width: '100%',
-  padding: '0.6rem 0.75rem',
-  borderRadius: '8px',
-  border: '1px solid #334155',
-  background: '#0f172a',
-  color: '#f8fafc',
-  fontSize: '0.9rem',
-};
