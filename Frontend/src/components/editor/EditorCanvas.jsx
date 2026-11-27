@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { Eye, Hand, Maximize2, Monitor, MousePointer2, Plus, Smartphone, Tablet, ZoomIn, ZoomOut } from 'lucide-react';
-import SamplePortfolioCanvas from './SamplePortfolioCanvas.jsx';
-import { sampleSections } from './editorSampleData.js';
+import PortfolioRenderer from '../blocks/PortfolioRenderer.jsx';
+import { samplePortfolio } from './editorSampleData.js';
 
 const viewports = [
   { id: 'desktop', label: 'Desktop', width: 1120, Icon: Monitor },
@@ -38,7 +38,7 @@ export default function EditorCanvas({ viewport, onViewportChange, zoom, onZoomC
       <span className="breakpoint-label" title="Responsive breakpoints change the preview viewport only">Breakpoint <Plus size={12} /></span>
     </div>
     <div className={`canvas-scroller ${panMode ? 'is-pan' : ''}`} ref={viewportRef} onPointerDown={startPan} onPointerMove={movePan} onPointerUp={() => { panOrigin.current = null; }} onPointerCancel={() => { panOrigin.current = null; }}>
-      <SamplePortfolioCanvas sections={sampleSections} width={selectedViewport.width} zoom={zoom} />
+      <PortfolioRenderer portfolio={samplePortfolio} width={selectedViewport.width} zoom={zoom} />
     </div>
     {!previewMode && <div className="canvas-status" role="toolbar" aria-label="Canvas tools">
       <div className="bottom-toolbar">
