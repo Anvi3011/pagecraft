@@ -9,6 +9,15 @@ export const sampleSections = [
   { id: 'sample-contact', type: 'contact', data: { title: 'Have a good one in mind?', email: 'hello@alexmorgan.design' } },
 ];
 
+// Editor-only fixture. Future renderer work consumes `blocks`; the Phase 1 canvas
+// continues using sampleSections until its renderer integration is introduced.
+export const samplePortfolio = {
+  id: 'sample-portfolio',
+  title: 'Alex Morgan — Portfolio preview',
+  theme: { colors: { accent: '#1688e8', background: '#ffffff', text: '#202a35' } },
+  blocks: sampleSections,
+};
+
 export const sectionTemplates = [
   { id: 'nav-dark', type: 'header', category: 'Navigation', name: 'Studio navigation', description: 'A crisp dark navigation bar', preview: 'nav-dark' },
   { id: 'nav-light', type: 'header', category: 'Navigation', name: 'Minimal navigation', description: 'Quiet links with a clear CTA', preview: 'nav-light' },
