@@ -4,8 +4,12 @@ import EditorTopbar from './EditorTopbar.jsx';
 import InsertSidebar from './InsertSidebar.jsx';
 import PropertiesInspector from './PropertiesInspector.jsx';
 import SectionLibrary from './SectionLibrary.jsx';
+import { samplePortfolio } from './editorSampleData.js';
+import { clonePortfolio } from './portfolioBlockState.js';
 
 export default function EditorShell() {
+  // This remains local-only until a later phase connects renderer controls and persistence.
+  const [portfolio] = useState(() => clonePortfolio(samplePortfolio));
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All sections');
   const [selectedTemplate, setSelectedTemplate] = useState('hero-split');
@@ -19,6 +23,9 @@ export default function EditorShell() {
   const [mobilePanel, setMobilePanel] = useState(null);
   const [isCompact, setIsCompact] = useState(() => window.matchMedia('(max-width: 1080px)').matches);
   const canvasRef = useRef(null);
+
+  // Keep the future editor state initialized without changing the existing Phase 1 canvas.
+  void portfolio;
 
   useEffect(() => {
     const media = window.matchMedia('(max-width: 1080px)');
