@@ -1,7 +1,9 @@
 import { useRef } from 'react';
 import { Eye, Hand, Maximize2, Monitor, MousePointer2, Plus, Smartphone, Tablet, ZoomIn, ZoomOut } from 'lucide-react';
+import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react';
 import PortfolioRenderer from '../blocks/PortfolioRenderer.jsx';
-import { samplePortfolio } from './editorSampleData.js';
+import SortableBlock from './SortableBlock.jsx';
+import { supportedBlockTypes } from './portfolioBlockState.js';
 
 const viewports = [
   { id: 'desktop', label: 'Desktop', width: 1120, Icon: Monitor },
@@ -9,10 +11,24 @@ const viewports = [
   { id: 'mobile', label: 'Mobile', width: 390, Icon: Smartphone },
 ];
 
-export default function EditorCanvas({ viewport, onViewportChange, zoom, onZoomChange, panMode, onPanModeChange, previewMode, onPreview, onFit }) {
+const isSortablePortfolioBlock = (block) => block
+  && typeof block === 'object'
+  && typeof block.id === 'string'
+  && block.id.trim().length > 0
+  && supportedBlockTypes.includes(block.type);
+
+const editorSensors = [PointerSensor, KeyboardSensor];
+
+export default function EditorCanvas({ portfolio, selectedBlockId, onBlockSelect, onReorderBlocks, viewport, onViewportChange, zoom, onZoomChange, panMode, onPanModeChange, previewMode, onPreview, onFit }) {
   const viewportRef = useRef(null);
   const panOrigin = useRef(null);
   const selectedViewport = viewports.find((item) => item.id === viewport) ?? viewports[0];
+  const sortingEnabled = !panMode && !previewMode;
+  const blockIdCounts = new Map();
+  if (Array.isArray(portfolio?.blocks)) {
+    portfolio.blocks.filter(isSortablePortfolioBlock).forEach((block) => blockIdCounts.set(block.id, (blockIdCounts.get(block.id) ?? 0) + 1));
+  }
+  const isUniqueSortableBlock = (block) => isSortablePortfolioBlock(block) && blockIdCounts.get(block.id) === 1;
   const changeZoom = (delta) => onZoomChange((current) => Math.min(1.1, Math.max(.35, Math.round((current + delta) * 100) / 100)));
 
   const startPan = (event) => {
@@ -28,6 +44,22 @@ export default function EditorCanvas({ viewport, onViewportChange, zoom, onZoomC
     scroller.scrollLeft = panOrigin.current.left - (event.clientX - panOrigin.current.x);
     scroller.scrollTop = panOrigin.current.top - (event.clientY - panOrigin.current.y);
   };
+  const selectSortableBlock = (id) => {
+    if (typeof id === 'string' && id.trim().length > 0) onBlockSelect?.(id);
+  };
+  const handleDragStart = (event) => {
+    if (!sortingEnabled) return;
+    const sourceId = event?.operation?.source?.id;
+    if (typeof sourceId === 'string' && blockIdCounts.get(sourceId) === 1) selectSortableBlock(sourceId);
+  };
+  const handleDragEnd = (event) => {
+    if (!sortingEnabled || event?.canceled) return;
+    const sourceId = event?.operation?.source?.id;
+    const destinationId = event?.operation?.target?.id;
+    if (typeof sourceId !== 'string' || typeof destinationId !== 'string' || sourceId === destinationId || blockIdCounts.get(sourceId) !== 1 || blockIdCounts.get(destinationId) !== 1) return;
+    onReorderBlocks?.(sourceId, destinationId);
+  };
+  const BlockWrapper = ({ block, index, children }) => <SortableBlock block={block} index={index} selected={selectedBlockId === block.id} disabled={!sortingEnabled} onSelect={selectSortableBlock}>{children}</SortableBlock>;
 
   return <main className="canvas-workspace" aria-label="Portfolio editing canvas">
     <div className="canvas-topline">
@@ -38,7 +70,9 @@ export default function EditorCanvas({ viewport, onViewportChange, zoom, onZoomC
       <span className="breakpoint-label" title="Responsive breakpoints change the preview viewport only">Breakpoint <Plus size={12} /></span>
     </div>
     <div className={`canvas-scroller ${panMode ? 'is-pan' : ''}`} ref={viewportRef} onPointerDown={startPan} onPointerMove={movePan} onPointerUp={() => { panOrigin.current = null; }} onPointerCancel={() => { panOrigin.current = null; }}>
-      <PortfolioRenderer portfolio={samplePortfolio} width={selectedViewport.width} zoom={zoom} />
+      <DragDropProvider sensors={editorSensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <PortfolioRenderer portfolio={portfolio} width={selectedViewport.width} zoom={zoom} BlockWrapper={previewMode ? undefined : BlockWrapper} shouldWrapBlock={isUniqueSortableBlock} />
+      </DragDropProvider>
     </div>
     {!previewMode && <div className="canvas-status" role="toolbar" aria-label="Canvas tools">
       <div className="bottom-toolbar">

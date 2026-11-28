@@ -14,14 +14,15 @@ export const samplePortfolio = {
   ],
 };
 
-// Editor-only fixture. Future renderer work consumes `blocks`; the Phase 1 canvas
-// continues using sampleSections until its renderer integration is introduced.
-export const samplePortfolio = {
-  id: 'sample-portfolio',
-  title: 'Alex Morgan — Portfolio preview',
-  theme: { colors: { accent: '#1688e8', background: '#ffffff', text: '#202a35' } },
-  blocks: sampleSections,
-};
+// Legacy Phase 1 canvas fixture. Keep it available for any remaining static-canvas consumers.
+export const sampleSections = [
+  { id: 'sample-header', type: 'header', data: { name: 'Alex Morgan', headline: 'Product designer & creative developer', location: 'Brooklyn, NY' } },
+  { id: 'sample-about', type: 'about', data: { title: 'A little about me', description: 'I turn complex ideas into clear, thoughtful digital experiences. Over the past 7 years, I have partnered with early-stage teams and global brands to shape products people love using.' } },
+  { id: 'sample-skills', type: 'skills', data: { title: 'What I bring', items: ['Product design', 'Design systems', 'Prototyping', 'React', 'Creative direction'] } },
+  { id: 'sample-projects', type: 'projects', data: { title: 'Selected work', items: [{ id: 'project-one', name: 'Northstar Finance', description: 'A calmer way to plan for what is next.' }, { id: 'project-two', name: 'Fieldnotes', description: 'A new home for curious minds.' }, { id: 'project-three', name: 'Studio Current', description: 'Identity for a more thoughtful future.' }] } },
+  { id: 'sample-experience', type: 'experience', data: { title: 'Where I have been', items: [{ id: 'experience-one', company: 'Morrow Studio', role: 'Senior Product Designer', startDate: '2022', endDate: 'Now' }, { id: 'experience-two', company: 'Fable & Co.', role: 'Product Designer', startDate: '2019', endDate: '2022' }] } },
+  { id: 'sample-contact', type: 'contact', data: { title: 'Have a good one in mind?', email: 'hello@alexmorgan.design' } },
+];
 
 export const sectionTemplates = [
   { id: 'nav-dark', type: 'header', category: 'Navigation', name: 'Studio navigation', description: 'A crisp dark navigation bar', preview: 'nav-dark' },
