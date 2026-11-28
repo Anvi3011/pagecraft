@@ -1,5 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import PortfolioRenderer from './PortfolioRenderer.jsx';
 
 const portfolio = {
@@ -45,6 +45,24 @@ describe('PortfolioRenderer', () => {
     const renderedIds = [...container.querySelectorAll('[data-block-id]')].map((element) => element.dataset.blockId);
 
     expect(renderedIds).toEqual(['projects', 'header', 'contact']);
+  });
+
+  it('renders duplicate-ID blocks without duplicate React keys or data loss', () => {
+    const duplicateIdPortfolio = {
+      ...portfolio,
+      blocks: [
+        { id: 'duplicate', type: 'about', data: { title: 'First duplicate', description: 'First block remains visible.' } },
+        { id: 'duplicate', type: 'about', data: { title: 'Second duplicate', description: 'Second block remains visible.' } },
+      ],
+    };
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { container } = render(<PortfolioRenderer portfolio={duplicateIdPortfolio} />);
+
+    expect(screen.getByRole('heading', { name: 'First duplicate' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Second duplicate' })).toBeInTheDocument();
+    expect(container.querySelectorAll('[data-block-id="duplicate"]')).toHaveLength(2);
+    expect(consoleError.mock.calls.flat().join(' ')).not.toContain('same key');
+    consoleError.mockRestore();
   });
 
   it('shows a safe fallback for unknown block types', () => {

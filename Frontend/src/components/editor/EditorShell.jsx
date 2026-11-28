@@ -5,7 +5,7 @@ import InsertSidebar from './InsertSidebar.jsx';
 import PropertiesInspector from './PropertiesInspector.jsx';
 import SectionLibrary from './SectionLibrary.jsx';
 import { samplePortfolio } from './editorSampleData.js';
-import { clonePortfolio, supportedBlockTypes } from './portfolioBlockState.js';
+import { clonePortfolio, reorderBlocks, supportedBlockTypes } from './portfolioBlockState.js';
 import { addTemplateBlock } from './sectionLibraryState.js';
 
 export default function EditorShell() {
@@ -26,10 +26,6 @@ export default function EditorShell() {
   const [isCompact, setIsCompact] = useState(() => window.matchMedia('(max-width: 1080px)').matches);
   const canvasRef = useRef(null);
   const pendingBlockSelection = useRef(false);
-
-  // The Phase 1 canvas stays static until the reusable renderer is merged.
-  void portfolio;
-  void selectedBlockId;
 
   useEffect(() => {
     const media = window.matchMedia('(max-width: 1080px)');
@@ -90,6 +86,9 @@ export default function EditorShell() {
     pendingBlockSelection.current = true;
     setPortfolio((current) => addTemplateBlock(current, template).portfolio);
   }, []);
+  const reorderPortfolioBlocks = useCallback((sourceId, destinationId) => {
+    setPortfolio((current) => reorderBlocks(current, sourceId, destinationId));
+  }, []);
 
   return <div className="editor-app" id="editor">
     <EditorTopbar
@@ -103,7 +102,7 @@ export default function EditorShell() {
       {!previewMode && (isCompact ? mobilePanel === 'insert' : showInsert) && <InsertSidebar search={search} onSearch={setSearch} activeCategory={activeCategory} onCategoryChange={selectCategory} open={mobilePanel === 'insert'} />}
       {!previewMode && (isCompact ? mobilePanel === 'library' : showLibrary) && <SectionLibrary search={search} activeCategory={activeCategory} selectedTemplate={selectedTemplate} onSelect={setSelectedTemplate} onAdd={addSectionTemplate} open={mobilePanel === 'library'} onClose={() => { setShowLibrary(false); setMobilePanel(null); }} />}
       <div ref={canvasRef} className="canvas-slot">
-        <EditorCanvas portfolio={portfolio} selectedBlockId={selectedBlockId} viewport={viewport} onViewportChange={setViewport} zoom={zoom} onZoomChange={setZoom} panMode={panMode} onPanModeChange={setPanMode} previewMode={previewMode} onPreview={() => setPreviewMode(true)} onFit={fitCanvas} />
+        <EditorCanvas portfolio={portfolio} selectedBlockId={selectedBlockId} onBlockSelect={setSelectedBlockId} onReorderBlocks={reorderPortfolioBlocks} viewport={viewport} onViewportChange={setViewport} zoom={zoom} onZoomChange={setZoom} panMode={panMode} onPanModeChange={setPanMode} previewMode={previewMode} onPreview={() => setPreviewMode(true)} onFit={fitCanvas} />
       </div>
       {!previewMode && (isCompact ? mobilePanel === 'inspector' : showInspector) && <PropertiesInspector open={mobilePanel === 'inspector'} onClose={() => { setShowInspector(false); setMobilePanel(null); }} />}
     </div>
